@@ -1,0 +1,37 @@
+{% extends "base_sidebar.html" %}
+{% load widget_tweaks %}
+
+{% block content %}
+    <div class="jumbotron">
+        <h1>Welcome to R.A.P.I.D</h1>
+        <p>Want your own instance? Grab the code.</p>
+        <a class="btn btn-primary btn-lg" href="https://github.com/taskr" target="_blank">On Github »</a>
+    </div>
+{% endblock %}
+
+{% block sidekick %}
+    <div class="list-group" align="center">
+        <div class="list-group-item active">
+            <h4 class="list-group-item-heading" align="center">Login</h4>
+        </div>
+
+        <form class="list-group-item" role="form" action="{% url 'login' %}" method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                {{ form.email|attr:"class:form-control"|attr:"placeholder:Enter Email" }}
+            </div>
+
+            <div class="form-group">
+                {{ form.password|attr:"class:form-control"|attr:"placeholder:Enter Password" }}
+            </div>
+
+            <input class="btn btn-success btn-lg" type="submit" value="Login" />
+            <a class="btn btn-primary btn-lg" href="{% url 'register' %}">Register</a>
+            <br><br><a href="{% url 'recover' %}">Forgot Password?</a>
+        </form>
+    </div>
+{% endblock %}
+
+
+
+

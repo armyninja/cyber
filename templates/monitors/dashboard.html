@@ -1,0 +1,268 @@
+{% extends "base.html" %}
+{% load static %}
+{% load widget_tweaks %}
+{% load monitor_extras %}
+
+{% block navbar_content %}
+    <ul class="nav navbar-nav navbar-right">
+
+        <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{ user }}<span class="caret"></span></a>
+            <ul class="dropdown-menu" role="menu">
+                <li><a href="{% url 'app_Pivoteer' %}">Pivoting Tool</a></li>
+                <li><a href="{% url 'profile' %}">Manage Profile</a></li>
+                {% if user.is_superuser %}
+                    <li><a href="{% url 'admin:index' %}">Administrator Panel</a></li>
+                {% endif %}
+
+                <li class="divider"></li>
+                <li><a href="{% url 'logout' %}">Logout</a></li>
+            </ul>
+        </li>
+
+    </ul>
+{% endblock navbar_content %}
+
+
+{% block content %}
+
+    <!-- Alert Messages -->
+    {% if messages %}
+        <div class="alert alert-info" role="alert">
+            <button type="button" class="close" data-dismiss="alert">
+                <span aria-hidden="true">&times;</span>
+                <span class="sr-only">Close</span>
+            </button>
+
+
+            {% for message in messages %}
+                <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
+                {{ message }}
+            {% endfor %}
+
+        </div>
+    {% endif %}
+    <!-- End Alert Messages -->
+
+    <!-- Nav tabs -->
+      <ul class="nav nav-tabs" role="tablist">
+        <li role="presentation">
+            <a href="#CertificatePanel" aria-controls="CertificatePanel" role="tab" data-toggle="tab">
+                Certificates
+                <span class="badge">0</span>
+            </a>
+        </li>
+
+        <li role="presentation" class="active">
+            <a href="#DomainPanel" aria-controls="DomainPanel" role="tab" data-toggle="tab">
+                Domains
+                <span class="badge">0</span>
+            </a>
+        </li>
+
+        <li role="presentation">
+            <a href="#IpPanel" aria-controls="IpPanel" role="tab" data-toggle="tab">
+                IP Addresses
+                <span class="badge">0</span>
+            </a>
+        </li>
+
+        <li role="presentation">
+            <a href="#AlertPanel" aria-controls="AlertPanel" role="tab" data-toggle="tab">
+                Alerts in Last 7 Days
+                <span class="badge">0</span>
+            </a>
+        </li>
+
+        <li class="pull-right">
+            <div class="btn-group">
+                <button type="button"
+                        data-toggle="dropdown"
+                        class="btn btn-success btn-sm dropdown-toggle">Add Monitors
+                    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a data-link="{% url 'add_indicators' %}"
+                           data-toggle="modal"
+                           data-target="#AddMonitorModal">Add IP/Domain</a></li>
+                    <li><a data-link="{% url 'add_certificate' %}"
+                           data-toggle="modal"
+                           data-target="#AddCertificateModal">Add Certificate</a></li>
+                </ul>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-success btn-sm" data-toggle="modal" data-target="#TaggingModal" data-link="{% url 'tag_indicators' %}">Tagging
+                    <span class="glyphicon glyphicon-tags" aria-hidden="true"></span>
+                </button>
+            </div>
+
+            <div class="btn-group dropdown">
+              <button class="btn btn-success btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                  Export
+                  <span class="glyphicon glyphicon-save" aria-hidden="true"></span>
+              </button>
+              <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                <li><a href="{% url 'export_indicators' %}">All Indicators</a></li>
+                <li><a href="{% url 'export_indicators' %}?filter=ip">IP Addresses</a></li>
+                <li><a href="{% url 'export_indicators' %}?filter=domain">Domains</a></li>
+                <li><a href="{% url 'export_indicators' %}?filter=certificate">Certificates</a></li>
+              </ul>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-danger btn-sm" data-toggle="modal" data-target="#RemoveTaggingModal" data-link="{% url 'untag_indicators' %}">Remove Tags
+                    <span class="glyphicon glyphicon-fire" aria-hidden="true"></span>
+                </button>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-danger btn-sm" data-toggle="modal" data-target="#ConfirmRemovalModal" data-link="{% url 'delete_indicators' %}">Delete Monitors
+                    <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                </button>
+            </div>
+        </li>
+
+      </ul>
+    <!-- End nav tabs -->
+
+    <!-- Panel panes -->
+      <div class="tab-content">
+        <div role="tabpanel" class="tab-pane active" id="DomainPanel"></div>
+        <div role="tabpanel" class="tab-pane" id="IpPanel"></div>
+        <div role="tabpanel" class="tab-pane" id="CertificatePanel"></div>
+        <div role="tabpanel" class="tab-pane" id="AlertPanel"></div>
+      </div>
+    <!-- End tab panes -->
+
+    <!-- Add Monitor Modal -->
+        <div class="modal fade" id="AddMonitorModal" tabindex="-1" role="dialog" aria-labelledby="AddMonitorLabel">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+
+                        <h4 class="modal-title" id="AddMonitorLabel">
+                             Add Domains and/or IP Addresses for Monitoring
+                        </h4>
+                    </div>
+
+                    <div class="modal-body"></div>
+                </div>
+            </div>
+        </div>
+    <!-- End Add Monitor Modal -->
+
+    <!-- Add Certificate Modal -->
+    <div class="modal fade" id="AddCertificateModal" tabindex="-1" role="dialog" aria-labelledby="AddCertificateLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+
+                    <h4 class="modal-title" id="AddCertificateLabel">
+                        Add Certificate for Monitoring
+                    </h4>
+                </div>
+
+                <div class="modal-body"></div>
+            </div>
+        </div>
+    </div>
+    <!-- End Add Certificate Modal -->
+
+    <!-- Tagging Modal -->
+        <div class="modal fade" id="TaggingModal" tabindex="-1" role="dialog" aria-labelledby="TaggingLabel">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+
+                        <h4 class="modal-title" id="TaggingLabel">
+                            Manage and Add Tags to Selected Monitors
+                        </h4>
+                    </div>
+
+                    <div class="modal-body"></div>
+                </div>
+            </div>
+        </div>
+    <!-- End Tagging Modal -->
+
+    <!-- Tagging Modal -->
+        <div class="modal fade" id="ExportModal" tabindex="-1" role="dialog" aria-labelledby="ExportLabel">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+
+                        <h4 class="modal-title" id="ExportLabel">
+                            Export Monitors
+                        </h4>
+                    </div>
+
+                    <div class="modal-body"></div>
+                </div>
+            </div>
+        </div>
+    <!-- End Tagging Modal -->
+
+    <!-- Remove Tagging Modal -->
+        <div class="modal fade" id="RemoveTaggingModal" tabindex="-1" role="dialog" aria-labelledby="RemoveTaggingLabel">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+
+                        <h4 class="modal-title" id="RemoveTaggingLabel">
+                            <span class="glyphicon glyphicon-alert" aria-hidden="true"></span>
+                            WARNING... Tag Removal
+                            <span class="glyphicon glyphicon-alert" aria-hidden="true"></span>
+                        </h4>
+                    </div>
+
+                    <div class="modal-body"></div>
+                </div>
+            </div>
+        </div>
+    <!-- End Remove Tagging Modal -->
+
+    <!-- Remove Monitor Confirmation Modal -->
+        <div class="modal fade" id="ConfirmRemovalModal" tabindex="-1" role="dialog" aria-labelledby="ConfirmRemovalLabel">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+
+                        <h4 class="modal-title" id="ConfirmRemovalLabel">
+                            <span class="glyphicon glyphicon-alert" aria-hidden="true"></span>
+                            WARNING... Monitor Removal
+                            <span class="glyphicon glyphicon-alert" aria-hidden="true"></span>
+                        </h4>
+                    </div>
+
+                    <div class="modal-body"></div>
+                </div>
+            </div>
+        </div>
+    <!-- End Remove Monitor Confirmation Modal -->
+
+{% endblock content %}
+
+
+{% block javascript %}
+    {{ block.super }}
+    <script src="{% static "monitor.js" %}"></script>
+{% endblock javascript %}

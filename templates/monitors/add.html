@@ -1,0 +1,13 @@
+{% load static %}
+{% load widget_tweaks %}
+
+<form action="{% url 'add_indicators' %}" method="post">
+    {% csrf_token %}
+    <h4><label>New monitor submissions</label></h4>
+    {{ form.indicators|attr:"class:form-control"|attr:"placeholder:Enter List of Indicators" }}<br>
+
+    <div align="center">
+        <input class="btn btn-primary" type="submit" value="Confirm Monitor Submission"/>
+    </div>
+
+</form>

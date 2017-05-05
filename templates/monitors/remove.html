@@ -1,0 +1,14 @@
+{% load static %}
+
+<div align="center">
+    <h4>
+        This action will remove all currently selected monitors.
+        <br><br>
+        Are you sure you want to continue?
+    </h4>
+
+    <form class="choice_selector" action="{% url 'delete_indicators' %}" method="post">
+        {% csrf_token %}
+        <input class="btn btn-danger" type="submit" value="Confirm Monitor Deletion"/>
+    </form>
+</div>

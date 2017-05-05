@@ -1,0 +1,41 @@
+{% load static %}
+
+<div class="row">
+
+    <div class="col-md-6">
+        <form class="choice_selector" action="" method="post">
+            {% csrf_token %}
+
+            <h4>
+                <label for="TagSelect">
+                    Available Tags
+                    <span class="badge">{{ tags.count }}</span>
+                </label>
+            </h4>
+
+            <select id="TagSelect" class="selectpicker" name="tags" multiple data-selected-text-format="count">
+                {% for tag in tags %}
+                    <option value="{{ tag }}" data-icon="glyphicon-tag">{{ tag }}</option>
+                {% endfor %}
+            </select>
+
+        </form>
+        <button class="btn btn-success" data-link="{% url 'tag_indicators' %}">Tag Monitors</button>
+        <button  class="btn btn-danger" data-link="{% url 'delete_tags' %}">Delete Tags</button>
+    </div>
+
+    <div class="col-md-6">
+        <form class="no-refresh" action="" method="post">
+            {% csrf_token %}
+
+            <h4>
+                <label for="TagCreation">Tag Creation</label>
+            </h4>
+
+            <input id="TagCreation" name="new_tag" type="text" class="form-control" placeholder="Enter New Tag">
+
+        </form>
+
+        <button class="btn btn-success" data-link="{% url 'create_tag' %}">Create Tag</button>
+    </div>
+</div>

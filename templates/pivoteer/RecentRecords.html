@@ -1,0 +1,248 @@
+{% load pivoteer_extras %}
+
+<span id="top"></span>
+Jump to: 
+<br><a href="#whois">whois</a>
+<br><a href="#threatcrowd">threatcrowd</a>
+<br><a href="#certificates">certificate search</a>
+<h3>Hosting Within Last 24 Hours</h3>
+{% if current_hosts %}
+    <table id="CR_table" class="table display">
+        <thead>
+          <tr>
+            <th>Resolution Date</th>
+            <th>Domain</th>
+            <th>IP Address</th>
+            <th>Source</th>
+            <th>SSL</th>
+          </tr>
+        </thead>
+        <tbody>
+            {% for record in current_hosts %}
+                <tr>
+                    <td>{{ record.info_date|date:"N d, Y" }}</td>
+                    <td>
+                        {% if record.info.domain != origin %}
+                            <span class="pivot">{{ record.info.domain }}</span>
+                        {% else %}
+                            {{ record.info.domain }}
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if record.info.ip != origin %}
+                            <span class="pivot">{{ record.info.ip }}</span>
+                            <br>
+                            {{ record.location.country }}
+                        {% else %}
+                            {{ record.info.ip }}
+                            <br>
+                            {{ record.location.country }}
+                        {% endif %}
+                    </td>
+                    <td>{{ record.get_info_source_display }}</td>
+                    <td>
+
+                        {% if 'status' in record.info.https_cert %}
+                            {{ record.info.https_cert.message }}
+                        {% else %}
+                            Subject: {{ record.info.https_cert.subject_dn }}<br />
+                            Issuer: {{ record.info.https_cert.issuer_dn }}<br />
+                            SHA-256:
+                            <a target="_blank" href="https://www.censys.io/ipv4?q={{ record.info.https_cert.fingerprint_sha256 }}">
+                                {{ record.info.https_cert.fingerprint_sha256 }}
+                                <span class="glyphicon glyphicon-new-window"></span>
+                            </a><br />
+                            Validity: {{ record.info.https_cert.validity }}<br />
+                            Alt. Names: {{ record.info.https_cert.extensions.subject_alt_name.dns_names }}
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <h4>No Records Found</h4>
+{% endif %}
+
+<h3 id="whois">Most Recent WHOIS Record</h3>
+<a href="#top">Back to top</a><br><br>
+{% if current_whois %}
+    <table id="CW_table" class="table display">
+        <thead>
+        </thead>
+        <tbody>
+        <tr>
+
+        {% if current_whois.info.domain_name %}
+            <td>
+                <b>Lookup Date:</b><br>
+                {{ current_whois.info_date }}
+                <br><br>
+
+                <b>Domain Name:</b><br>
+                {{ current_whois.info.domain_name }}
+                <br><br>
+
+                <b>Status:</b><br>
+                {{ current_whois.info.status|join:", " }}
+                <br><br>
+
+                <b>Registrar:</b><br>
+                {{ current_whois.info.registrar|join:", " }}
+                <br><br>
+
+                <b>Updated:</b><br>
+                {{ current_whois.info.updated_date|join:", " }}
+                <br><br>
+
+                <b>Expires:</b><br>
+                {{ current_whois.info.expiration_date|join:", " }}
+                <br><br>
+
+                <b>Name Servers:</b><br>
+                {{ current_whois.info.nameservers|join:", " }}
+                <br><br>
+            </td>
+            <td>
+                {% for key, item in current_whois.info.contacts.items %}
+                    {% if item %}
+                        <b>{{ key|title }}</b><br>
+                        {% for subkey, subitem in item.items %}
+                            {{ subkey }}: {{ subitem }}<br>
+                        {% endfor %}
+                        <br>
+                    {% endif %}
+                {% endfor %}
+            </td>
+        {% elif current_whois.info.query %}
+            <td>
+                <b>Lookup Date:</b> {{ current_whois.info_date }}<br>
+                <b>IP Address:</b> {{ current_whois.info.query }}<br>
+                <b>ASN CIDR:</b> {{ current_whois.info.asn_cidr }}<br>
+                <b>ASN ID:</b> {{ current_whois.info.asn }}<br>
+                <b>ASN Registry:</b> {{ current_whois.info.asn_registry }}<br>
+                <b>ASN Country Code:</b> {{ current_whois.info.asn_country_code }}<br>
+                <b>ASN Date:</b> {{ current_whois.info.asn_date }}<br>
+                <b>Referral:</b> {{ current_whois.info.referral }}<br>
+
+                {% for net in current_whois.info.nets %}
+                    <br>
+                    {% for key, item in net.items %}
+                        <b>{{ key|title }}:</b> {{ item }}<br>
+                    {% endfor %}
+                {% endfor %}
+            </td>
+        {% endif %}
+        </tr>
+        </tbody>
+    </table>
+{% else %}
+    <h4>No Records Found</h4>
+{% endif %}
+
+<hr class="linebreak" id="threatcrowd">
+<h3>Most Recent ThreatCrowd Record</h3>
+<a href="#top">Back to top</a><br><br>
+{% if tc_info %}
+  <b>Lookup Date:</b><br>
+  {{ tc_info.info_date }}
+  <br><br>
+  {% if tc_info.info.error %}
+  Error retrieving TC data: {{ tc_info.info.error }}
+  {% endif %}
+  {% if tc_info.info.permalink %}
+  <b>Permalink:</b><br>
+  <a target="_blank" href="{{ tc_info.info.permalink }}">{{ tc_info.info.permalink }}</a>
+  <br><br>
+  {% endif %}
+  {% if tc_info.info.emails %}
+  <b>Emails:</b><br>
+  {{ tc_info.info.emails|join:", " }}
+  <br><br>
+  {% endif %}
+  <table class="table display">
+  <thead>
+    <tr>
+      {% if tc_info.info.subdomains %}<th>Subdomains</th>{% endif %}
+      {% if tc_info.info.resolutions %}
+      <th>Resolutions</th>
+      {% endif %}
+      {% if tc_info.info.hashes %}<th>Hashes</th>{% endif %}
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      {% if tc_info.info.subdomains %}
+      <td>
+      {% for item in tc_info.info.subdomains %}
+        <br><span class="pivot">{{ item }}</span>
+      {% endfor %}
+      </td>
+      {% endif %}
+      {% if tc_info.info.resolutions %}
+      <td>
+      {% for item in tc_info.info.resolutions %}
+        <br>{{item.last_resolved}} {% if item.domain %}<span class="pivot">{{ item.domain }}</span>{% endif %}{% if item.ip_address %}<span class="pivot">{{ item.ip_address }}</span>{% endif %}       
+      {% endfor %}
+      </td>
+      {% endif %}
+      {% if tc_info.info.hashes %}
+      <td>
+      {% for item in tc_info.info.hashes %}
+        <br>{{ item }}
+      {% endfor %}
+      </td>
+      {% endif %}
+    </tr>
+  </tbody>
+  </table>
+  {% if tc_info.info.references %}
+  <b>References:</b><br>
+  {{ tc_info.info.references|join:", " }}
+  <br><br>
+  {% endif %}
+{% else %}
+<h4>No Records Found</h4>
+{% endif %}
+
+<hr class="linebreak" id="certificates">
+<h3>Most Recent Certificate Search Results</h3>
+<a href="#top">Back to top</a><br><br>
+{% if cert_info %}
+  {% if cert_info.info.status %}
+    Error retrieving certificate data: {{ cert_info.info.message }}
+  {% elif cert_info.info.count > 0 %}
+    <br><b>Total results: </b>{{ cert_info.info.total }}
+    <b> Saved: </b>{{ cert_info.info.count }}
+  {% else %}
+    No results.
+  {% endif %}
+<br><br><b>Permalink: </b><a target="_blank" href="https://www.censys.io/certificates?q={{ cert_info.info.indicator }}">https://www.censys.io/certificates?q={{ cert_info.info.indicator }}</a>
+<br>
+<table id="cert_table" class="table display">
+  <tbody>
+    {% for item in cert_info.info.records %}
+    <tr>
+      <td>
+		Subject: {{ item.parsed.subject_dn }}<br />
+		Issuer: {{ item.parsed.issuer_dn }}<br />
+		SHA-256:
+		<a target="_blank" href="https://www.censys.io/certificates/{{ item.parsed.fingerprint_sha256 }}">
+		    {{ item.parsed.fingerprint_sha256 }}
+		    <span class="glyphicon glyphicon-new-window"></span>
+		</a>
+		<a target="_blank" href="https://www.censys.io/ipv4?q={{ item.parsed.fingerprint_sha256 }}"> ipv4 search
+		<span class="glyphicon glyphicon-new-window"></span></a>
+		<a target="_blank" href="https://www.censys.io/domain/help?q={{ item.parsed.fingerprint_sha256 }}"> domain search
+		<span class="glyphicon glyphicon-new-window"></span></a>
+		<br />
+		Validity: {{ item.parsed.validity.start }} - {{ item.parsed.validity.end }}<br />      
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+<a href="#top">Back to top</a><br><br>
+{% else %}
+No certificate results loaded.
+{% endif %}

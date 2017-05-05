@@ -1,0 +1,24 @@
+Shell Scripts:
+  /external_configs/celery/celery_beat.sh (copied to /etc/init.d/celery_beat via install.sh)
+  /external_configs/celery/celery_daemon.sh (copied to /etc/init.d/celery_daemon via install.sh)
+  /external_configs/celery/celery_pivoteer.sh (copied to /etc/init.d/celery_pivoteer via install.sh)
+
+Configuration Files:
+  /external_configs/celery/celery_beat (copied to /etc/default/celery_beat via install.sh)
+  /external_configs/celery/celery_daemon (copied to /etc/default/celery_daemon via install.sh)
+  /external_configs/celery/celery_pivoteer (copied to /etc/default/celery_pivoteer via install.sh)
+
+Run the service scripts to control celery daemons:
+
+```
+service celery_beat {start|status|stop}
+service celery_daemon {start|status|stop}
+service celery_pivoteer {start|status|stop}
+```
+
+*** Alternatively, you can manually start celery via the command-line. This is NOT
+recommended for production but can be useful for debugging and testing purposes ***
+
+```
+celery multi start 4 -l INFO -Q:1-3 pivoteer -Q default
+```

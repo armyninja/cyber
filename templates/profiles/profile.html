@@ -1,0 +1,21 @@
+{% extends "base_sidebar.html" %}
+{% load widget_tweaks %}
+
+{%  block content %}
+    <div class="list-group">
+      <div class="list-group-item active">
+        <h3 class="list-group-item-heading">Account Details</h3>
+      </div>
+      <div class="list-group-item">
+        Email Address: {{ profile.email }} <br>
+        Receive Email Alerts: {{ profile.alerts }} <br>
+        Staff Member: {{ profile.is_staff }} <br><br>
+      </div>
+    </div>
+
+    <a href="{% url 'update' %}"><span class="medium">[ edit details ]</span></a>
+    <a href="{% url 'password' %}"><span class="medium">[ change password ]</span></a>
+{%  endblock %}
+
+{% block sidekick %}
+{% endblock %}

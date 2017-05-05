@@ -1,0 +1,59 @@
+{% load widget_tweaks %}
+{% load monitor_extras %}
+
+
+{% if monitored_domains %}
+    <form class="form" role="form" action="" method="post">
+
+        {% csrf_token %}
+        <table id="domain_table" class="table display" data-count={{ monitored_domains.count }}>
+            <thead><tr>
+                <th>Domain</th>
+                <th>IP Addresses</th>
+                <th>Next Lookup</th>
+                <th>Tagging</th>
+                <th></th>
+            </tr></thead>
+
+            <tbody>
+            {% for monitor in monitored_domains %}
+                <tr>
+                    <td>{{ monitor.domain_name }}</td>
+                    <td>
+                        {% if monitor.last_hosts|length > 10 %}
+
+                            {% with collapse_id=monitor.domain_name|digest %}
+                                <button type="button" class="btn btn-link btn-xs" data-toggle="collapse" data-target="#{{ collapse_id }}" aria-expanded="true" aria-controls="{{ collapse_id }}">
+                                    {{ monitor.last_hosts|length }} IP addresses
+                                </button>
+
+                                <div id="{{ collapse_id }}" class="collapse">
+                                    {% for host in monitor.last_hosts %}
+                                        {{ host }}<br>
+                                    {% endfor %}
+                                </div>
+                            {% endwith %}
+
+                        {% else %}
+                            {% for host in monitor.last_hosts %}
+                                {{ host }}<br>
+                            {% endfor %}
+                        {% endif %}
+                    </td>
+                    <td>{{ monitor.next_lookup }}</td>
+                    <td>
+                        {% for tagging in monitor.tags.all %}
+                            <span class="glyphicon glyphicon-tag" aria-hidden="true"></span>
+                            {{ tagging.tag }} <br>
+                        {% endfor %}
+                    </td>
+                    <td><input type="checkbox" value="{{ monitor.domain_name }}" name="choices"></td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </form>
+{% else %}
+    <br>
+    There are no domains currently being monitored
+{% endif %}

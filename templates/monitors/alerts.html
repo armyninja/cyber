@@ -1,0 +1,25 @@
+{% load widget_tweaks %}
+{% load monitor_extras %}
+
+{% if alerts %}
+    <table id="alert_table" class="table display" data-count={{ alerts.count }}>
+        <thead><tr>
+            <th>Indicator</th>
+            <th>Alert Text</th>
+            <th>Alert Time</th>
+        </tr></thead>
+
+        <tbody>
+        {% for alert in alerts %}
+            <tr>
+                <td>{{ alert.indicator }}</td>
+                <td>{{ alert.message }}</td>
+                <td>{{ alert.created }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <br>
+    No recent alerts available
+{% endif %}

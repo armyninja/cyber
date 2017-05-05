@@ -1,0 +1,24 @@
+{% extends "profiles/login.html" %}
+{% load widget_tweaks %}
+
+{% block sidekick %}
+    <div class="list-group" align="center">
+      <div class="list-group-item active">
+        <h4 class="list-group-item-heading" align="center">Password Reset</h4>
+      </div>
+
+      <form class="list-group-item" role="form" action="" method="post">
+        {% csrf_token %}
+        <div class="form-group">
+          {{ form.password1|attr:"class:form-control"|attr:"placeholder:Enter Password" }}
+        </div>
+
+        <div class="form-group">
+          {{ form.password2|attr:"class:form-control"|attr:"placeholder:Verify Password" }}
+        </div>
+
+        <input class="btn btn-success btn-lg" type="submit" value="Reset" />
+        <a class="btn btn-danger btn-lg" href="{% url 'login' %}">Cancel</a>
+      </form>
+    </div>
+{% endblock %}

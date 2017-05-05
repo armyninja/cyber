@@ -1,0 +1,95 @@
+General Instructions
+
+1) Certain prerequisites need to be installed, use shell script install.sh to do this quickly
+     -- Edit the line APPLICATION_DIR="/vagrant" to reflect the directory in which you copied the application
+     -- After designating the appropriate directory, run install.sh
+
+2) Configure Postgres
+     -- sudo su postgres
+     -- createuser <USERNAME> --pwprompt
+     -- createdb <DB_NAME>
+     -- psql
+     -- ALTER USER <USERNAME> CREATEDB;
+
+3) Configure Apache2
+     -- View and edit example templates located at: /external_configs/apache2/
+     -- Place templates in the /etc/apache2/sites-available directory
+     -- Generate or acquire SSL certs (place in /etc/apache2/ssl)
+     -- Enable SSL mod (sudo a2enmod ssl)
+     -- a2ensite the templates
+
+4) Configure RAPID configuration file(s) to match your environment
+     -- Edit /RAPID/RAPID/settings/<settings_file>.py
+         * base.py = universal settings
+         * local.py = development
+         * staging.py = staging
+         * production.py = final settings
+
+5) Create JSON file "secrets.json" in the Django project directory (same directory as manage.py).
+   This will contain your secret/sensitive values, for example:
+
+     {
+       "FILENAME": "secrets.json",
+       "SECRET_KEY": "<SECRET_KEY>",
+       "SQL_NAME": "<DATABASE_NAME>",
+       "SQL_HOST": "<DATABASE_IP>",
+       "SQL_USER": "<DATABASE_USERNAME>",
+       "SQL_PASS": "<DATABASE_PASSWORD>",
+       "EMAIL_HOST": "<EMAIL_HOST>",
+       "EMAIL_USER": "<EMAIL_USERNAME>",
+       "EMAIL_PASS": "<EMAIL_PASSWORD>",
+       "EMAIL_PORT": "<EMAIL_PORT>",
+       "IID_USER": "<INTERNET_IDENTITY_USERNAME>",
+       "IID_PASS": "<INTERNET_IDENTITY_PASSWORD>",
+       "PASSIVE_TOTAL_API": "<PASSIVE_TOTAL_API_KEY>",
+       "CENSYS_API_ID": "<CENSYS_API_ID>",
+       "CENSYS_API_SECRET": "<CENSYS_API_SECRET>",
+       "GOOGLE_SAFEBROWSING_API_KEY": "<GOOGLE_SAFEBROWSING_API_KEY>",
+       "GOOGLE_SAFEBROWSING_API_CLIENT": "<GOOGLE_SAFEBROWSING_API_CLIENT>",
+       "TOTAL_HASH_API_ID": "<TOTAL_HASH_API_ID>",
+       "TOTAL_HASH_SECRET": "<TOTAL_HASH_SECRET>",
+       "MALWR_LOGIN_ID": "<MALWR_LOGIN_USERNAME>",
+       "MALWR_LOGIN_SECRET": "<MALWR_LOGIN_PASSWD>"
+     }
+
+6) Instantiate and sync your Django models
+     -- For NEW installations:
+            python3 manage.py syncdb
+     -- For EXISTING installations:
+            python3 manage.py migrate --fake-initial
+            python3 manage.py migrate
+
+7) Start celery worker daemons
+     -- service celery_beat start
+     -- service celery_daemon start
+     -- service celery_pivoteer start
+     -- Additional info located at: /docs/CELERY
+
+8) If you figured out the correct apache configs, run `python3 manage.py collectstatic`
+Otherwise, to run the django server in local dev mode, run `python3 manage.py runserver`
+in order to run locally, update manage.py and RAPID/celery.py:
+
+    -- change 'os.environ.setdefault("DJANGO_SETTINGS_MODULE", "RAPID.settings.production")' to
+        'os.environ.setdefault("DJANGO_SETTINGS_MODULE", "RAPID.settings.local")'
+
+Automated Testing
+
+The tests are split into two folders - 'integration_tests' and 'unit_tests'. Integration tests are time consuming
+because they make API calls. Running them frequently may not be a good idea since they will use up API credits.
+
+Unit tests, on the other hand, may be run frequently and are fast. They do not hit APIs.
+
+You can specify which tests to run by specifying the folder of the tests you wish to execute. Unit and integration
+tests are placed in separate folders, for this reason.
+
+Running the tests will create and destroy a temporary Postgres database during each run. You will need to ensure
+Postgres is configured correctly with the user account in secrets.json, but you won't need a database in place.
+
+1) Run all tests: From the project root directory (for example, /vagrant on Vagrant) run:
+`python3 manage.py test`
+
+2) To run only unit tests:
+`python3 manage.py test unit_tests`
+
+3) To run only integration tests:
+`python3 manage.py test integration_tests`

@@ -1,0 +1,128 @@
+{% load pivoteer_extras %}
+
+<h3>Hosting Beyond Last 24 Hours</h3>
+{% if hosting_records %}
+    <table id="HR_table" class="table display">
+        <thead>
+          <tr>
+            <th>Resolution Date</th>
+            <th>Domain</th>
+            <th>IP Address</th>
+            <th>Country</th>
+            <th>Source</th>
+          </tr>
+        </thead>
+
+        <tbody>
+            {% for record in hosting_records %}
+                <tr>
+                    <td>{{ record.info_date|date:"N d, Y"  }}</td>
+                    <td>
+                        {% if record.info.domain != origin %}
+                            <span class="pivot">{{ record.info.domain }}</span>
+                        {% else %}
+                            {{ record.info.domain }}
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if record.info.ip != origin %}
+                            <span class="pivot">{{ record.info.ip }}</span>
+                        {% else %}
+                            {{ record.info.ip }}
+                        {% endif %}
+                    </td>
+                <td>
+                    {{ record.location.country }}
+                </td>
+                    <td>{{ record.get_info_source_display }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <h4>No Records Found</h4>
+{% endif %}
+
+<h3>WHOIS Records Beyond Last 24 hours</h3>
+{% if historical_whois %}
+    <table id="HW_table" class="table display">
+        <thead>
+            <tr>
+                <th>First Seen</th>
+                <th>Last Seen</th>
+                <th></th>
+                <th></th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for record in historical_whois %}
+                <tr>
+                    {% if record.info.domain_name %}
+                        <td>{{ record.earliest }}</td>
+                        <td>{{ record.latest }}</td>
+                        <td>
+                            <b>Domain Name:</b><br>
+                            {{ record.info.domain_name }}
+                            <br><br>
+
+                            <b>Status:</b><br>
+                            {{ record.info.status|join:", " }}
+                            <br><br>
+
+                            <b>Registrar:</b><br>
+                            {{ record.info.registrar|join:", " }}
+                            <br><br>
+
+                            <b>Updated:</b><br>
+                            {{ record.info.updated_date|join:", " }}
+                            <br><br>
+
+                            <b>Expires:</b><br>
+                            {{ record.info.expiration_date|join:", " }}
+                            <br><br>
+
+                            <b>Name Servers:</b><br>
+                            {{ record.info.nameservers|join:", " }}
+                            <br><br>
+                        </td>
+                        <td>
+                            {% for key, item in record.info.contacts.items %}
+                                {% if item %}
+                                    <b>{{ key|title }}</b><br>
+                                    {% for subkey, subitem in item.items %}
+                                        {{ subkey }}: {{ subitem }}<br>
+                                    {% endfor %}
+                                    <br>
+                                {% endif %}
+                            {% endfor %}
+                        </td>
+                    {% elif record.info.query %}
+                        <td>{{ record.earliest }}</td>
+                        <td>{{ record.latest }}</td>
+                        <td>
+                            <b>Lookup Date:</b> {{ record.info_date|date:"N d, Y" }}<br>
+                            <b>IP Address:</b> {{ record.info.query }}<br>
+                            <b>ASN CIDR:</b> {{ record.info.asn_cidr }}<br>
+                            <b>ASN ID:</b> {{ record.info.asn }}<br>
+                            <b>ASN Registry:</b> {{ record.info.asn_registry }}<br>
+                            <b>ASN Country Code:</b> {{ record.info.asn_country_code }}<br>
+                            <b>ASN Date:</b> {{ record.info.asn_date|date:"N d, Y" }}<br>
+                            <b>Referral:</b> {{ record.info.referral }}<br>
+
+                            {% for net in record.info.nets %}
+                                <br>
+                                {% for key, item in net.items %}
+                                    <b>{{ key|title }}:</b> {{ item }}<br>
+                                {% endfor %}
+                            {% endfor %}
+                        </td>
+                        <td></td>
+                    {% endif %}
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <h4>No Records Found</h4>
+{% endif %}

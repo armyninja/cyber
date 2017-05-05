@@ -1,0 +1,24 @@
+{% extends "home.html" %}
+
+{% block custom_title %} <title>Internal Error</title> {% endblock custom_title %}
+
+{% block content %}
+
+    <div class="container">
+      <div class="row">
+        <div class="col-md-12">
+          <div class="error-template">
+            <h1>Oops!</h1>
+            <h2>An internal error occurred, the administrator has been contacted</h2>
+            <a href="{% url 'menu' %}" class="btn btn-primary btn-lg">
+              <span></span>Take Me Home
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+{% endblock content %}
+
+{% block sidekick %}
+{% endblock sidekick %}
